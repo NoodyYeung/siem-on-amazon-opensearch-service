@@ -25,7 +25,7 @@ S3_BUCKET_NAME = os.environ['s3bucket_name']
 license_key = os.environ.get('license_key', '')
 s3key_prefix = os.environ.get('s3key_prefix', 'GeoLite2/')
 
-s3 = boto3.resource('s3')
+s3 = boto3.resource('s3',endpoint_url=S3_ENDPOINT_DNS)
 bucket = s3.Bucket(S3_BUCKET_NAME)
 
 s3_client = boto3.client('s3')

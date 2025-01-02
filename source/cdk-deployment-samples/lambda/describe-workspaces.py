@@ -15,10 +15,11 @@ import time
 
 import boto3
 from botocore.config import Config
+S3_ENDPOINT_DNS = os.environ.get('S3_ENDPOINT_DNS')
 
 config = Config(retries={'max_attempts': 10, 'mode': 'standard'})
 ws_client = boto3.client('workspaces', config=config)
-s3_resource = boto3.resource('s3')
+s3_resource = boto3.resource('s3',endpoint_url=S3_ENDPOINT_DNS)
 bucket = s3_resource.Bucket(os.environ['log_bucket_name'])
 AWS_ID = str(boto3.client("sts").get_caller_identity()["Account"])
 AWS_REGION = os.environ['AWS_DEFAULT_REGION']

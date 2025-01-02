@@ -127,7 +127,9 @@ class DB():
                 return True
 
         if not os.path.isfile(self.DB_FILE_LOCAL):
-            _s3 = boto3.resource('s3', config=self.s3_session_config)
+            S3_ENDPOINT_DNS = os.environ.get('S3_ENDPOINT_DNS')
+
+            _s3 = boto3.resource('s3', endpoint_url = S3_ENDPOINT_DNS)
             bucket = _s3.Bucket(self.GEOIP_BUCKET)
             try:
                 bucket.download_file(self.DB_FILE_S3KEY, self.DB_FILE_LOCAL)

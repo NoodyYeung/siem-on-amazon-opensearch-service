@@ -1,0 +1,11 @@
+
+cd /Users/noodyyeung/TrueProjects/aws_poc_opensearch/aws-opensearch-s3-event-main/siem-on-amazon-opensearch-service/source/lambda/
+
+docker build -t siem-lambda-container -f /Users/noodyyeung/TrueProjects/aws_poc_opensearch/aws-opensearch-s3-event-main/siem-on-amazon-opensearch-service/source/lambda/DockerFile .
+
+docker run -d -p 9000:8080 siem-lambda-container
+
+
+curl -XPOST "http://localhost:9000/2015-03-31/functions/function/invocations" -d @event.json
+
+docker run -d --name localstack -p 4566:4566 -p 4571:4571 -e SERVICES=s3 -e EDGE_PORT=4566 localstack/localstack

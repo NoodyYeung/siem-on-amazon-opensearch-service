@@ -40,7 +40,7 @@ helper_config = CfnResource(json_logging=False, log_level='DEBUG',
                             boto_level='CRITICAL', sleep_on_delete=3)
 
 iam_client = boto3.client('iam')
-s3_client = boto3.resource('s3')
+s3_client = boto3.resource('s3',endpoint_url=S3_ENDPOINT_DNS)
 ec2_client = boto3.client('ec2')
 opensearch_client = boto3.client('opensearch')
 ssm_client = boto3.client('ssm')

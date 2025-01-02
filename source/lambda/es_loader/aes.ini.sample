@@ -1,3 +1,0 @@
-[aes]
-es_endpoint = search-aes-siem-XXXXXXXXXXXXXXXX.ap-northeast-1.es.amazonaws.com
-geoip_bucket = aes-siem-123456789012-log

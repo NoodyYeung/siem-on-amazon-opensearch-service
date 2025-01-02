@@ -16,6 +16,7 @@ from functools import lru_cache
 import boto3
 import geoip2.database
 from aws_lambda_powertools import Logger
+S3_ENDPOINT_DNS = os.environ.get('S3_ENDPOINT_DNS')
 
 logger = Logger(child=True)
 
@@ -92,14 +93,15 @@ class GeoDB():
                 return True
 
         if not os.path.isfile(localfile):
-            s3geo = boto3.resource('s3', config=self.s3_session_config)
+            s3geo = boto3.resource('s3', endpoint_url = S3_ENDPOINT_DNS)
             bucket = s3geo.Bucket(geoipbucket)
             s3obj = self.S3KEY_PREFIX + geodb_name
             try:
                 bucket.download_file(s3obj, localfile)
-                logger.info(f'downloading {geodb_name} was success')
+                logger.info(f'downloading {geodb_name} was success {s3obj}')
                 return True
-            except Exception:
+            except Exception as e:
+                logger.warning(f'downloading {geodb_name} - {s3obj} was failed: {e}')
                 logger.warning(geodb_name + ' is not found in s3')
                 with open(localfile_not_found, 'w') as f:
                     f.write('')

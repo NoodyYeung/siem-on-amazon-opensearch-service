@@ -22,6 +22,7 @@ from aws_cdk import (
 )
 from aws_cdk.aws_kinesisfirehose import CfnDeliveryStream as CDS
 from constructs import Construct
+S3_ENDPOINT_DNS = os.environ.get('S3_ENDPOINT_DNS')
 
 region = os.environ.get("CDK_DEPLOY_REGION", os.environ["CDK_DEFAULT_REGION"])
 PARTITION = region_info.Fact.find(region, region_info.FactName.PARTITION)
@@ -46,7 +47,7 @@ from botocore.config import Config
 
 config = Config(retries={'max_attempts': 10, 'mode': 'standard'})
 ws_client = boto3.client('workspaces', config=config)
-s3_resource = boto3.resource('s3')
+s3_resource = boto3.resource('s3',endpoint_url=S3_ENDPOINT_DNS)
 bucket = s3_resource.Bucket(os.environ['log_bucket_name'])
 AWS_ID = str(boto3.client("sts").get_caller_identity()["Account"])
 AWS_REGION = os.environ['AWS_DEFAULT_REGION']
@@ -138,7 +139,7 @@ import boto3
 import botocore.exceptions
 
 client = boto3.Session(region_name='us-east-1').client('support')
-s3_resource = boto3.resource('s3')
+s3_resource = boto3.resource('s3',endpoint_url=S3_ENDPOINT_DNS)
 bucket = s3_resource.Bucket(os.environ['log_bucket_name'])
 AWS_ID = str(boto3.client("sts").get_caller_identity()["Account"])
 AWS_REGION = 'us-east-1'

@@ -25,6 +25,7 @@ import jmespath
 import requests
 from aws_lambda_powertools import Logger
 from opensearchpy import AWSV4SignerAuth, OpenSearch, RequestsHttpConnection
+S3_ENDPOINT_DNS = os.environ.get('S3_ENDPOINT_DNS')
 
 try:
     import numpy as np
@@ -590,7 +591,7 @@ def get_s3_client_for_crosss_account(
                 role_arn=role_arn, role_session_name=role_session_name,
                 external_id=external_id,
             ).get_session()
-            s3_client = autorefresh_session.client('s3', config=config)
+            s3_client = autorefresh_session.client('s3', config=config,endpoint_url=S3_ENDPOINT_DNS)
         except Exception:
             logger.exception(f'Unable to assume role, {role_arn}')
 
@@ -819,11 +820,14 @@ def make_exclude_own_log_patterns(etl_config) -> dict:
 
 def get_exclude_log_patterns_csv_filename(etl_config):
     csv_filename = etl_config['DEFAULT'].get('exclude_log_patterns_filename')
+    logger.info(f'exclude_log_patterns_filename: {csv_filename}')
     if not csv_filename:
         return None
     if 'GEOIP_BUCKET' in os.environ:
+        logger.info('exclude_log_patterns_filename is imported from ENV')
         geoipbucket = os.environ.get('GEOIP_BUCKET', '')
     else:
+        logger.info('exclude_log_patterns_filename is imported from aes.ini')
         config = configparser.ConfigParser(
             interpolation=configparser.ExtendedInterpolation())
         config.read('aes.ini')
@@ -832,13 +836,22 @@ def get_exclude_log_patterns_csv_filename(etl_config):
             geoipbucket = config['aes']['GEOIP_BUCKET']
         else:
             return None
-    s3geo = boto3.resource('s3')
+    logger.info(f'Using endpoint {S3_ENDPOINT_DNS}')
+    s3geo = boto3.resource('s3',endpoint_url=S3_ENDPOINT_DNS)
     bucket = s3geo.Bucket(geoipbucket)
     s3obj = csv_filename
     local_file = f'/tmp/{csv_filename}'
+    downloaded_bytes = 0
+    def download_progress(chunk):
+        # Define a callback function to log download progress
+        downloaded_bytes += len(chunk)
+        print(f"Downloaded: {downloaded_bytes} bytes")
     try:
-        bucket.download_file(s3obj, local_file)
-    except Exception:
+        logger.info(f'get {s3obj} from {geoipbucket}')
+        bucket.download_file(s3obj, local_file, Callback=download_progress)
+        logger.info(f'{s3obj} is downloaded as {local_file}')
+    except Exception as e:
+        logger.exception(f'Could not download {s3obj} from {geoipbucket}')
         return None
     return local_file
 

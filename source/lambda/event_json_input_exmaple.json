@@ -1,0 +1,38 @@
+{
+    "Records": [
+      {
+        "eventVersion": "2.1",
+        "eventSource": "aws:s3",
+        "awsRegion": "ap-east-1",
+        "eventTime": "2023-12-01T12:00:00.000Z",
+        "eventName": "ObjectCreated:Put",
+        "userIdentity": {
+          "principalId": "AWS:123456789012:user/username"
+        },
+        "requestParameters": {
+          "sourceIPAddress": "1.2.3.4"
+        },
+        "responseElements": {
+          "x-amz-request-id": "1234567890ABCDEF",
+          "x-amz-id-2": "EXAMPLE123/5678abcdefghijklambdaisawesome/mnopqrstuvwxyzABCDEFGH"
+        },
+        "s3": {
+          "s3SchemaVersion": "1.0",
+          "configurationId": "testConfigRule",
+          "bucket": {
+            "name": "hkg-hkma-sys-log-nonprd-server-access-bucket-558454069898",
+            "ownerIdentity": {
+              "principalId": "ABCDEF"
+            },
+            "arn": "arn:aws:s3:::hkg-hkma-sys-log-nonprd-server-access-bucket-558454069898"
+          },
+          "object": {
+            "key": "hkg-hkma-sys-log-nonprd-route53-resolver-bucket-558454069898/2023-12-09-23-17-50-FC9BE8733EFA3758",
+            "size": 567,
+            "eTag": "0123456789abcdef0123456789abcdef",
+            "sequencer": "0A1B2C3D4E5F678901"
+          }
+        }
+      }
+    ]
+  }

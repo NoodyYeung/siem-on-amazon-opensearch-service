@@ -1,0 +1,18 @@
+version: '3.8'
+
+services:
+  lambda-container:
+    build:
+      context: .           # Build context (current directory)
+      dockerfile: Dockerfile
+    container_name: lambda-es-loader
+    ports:
+      - "9000:8080"        # Map Lambda emulator port to host
+    volumes:
+      - ./es_loader/:/var/task/        # Mount function code
+      - ./es_loader_layer/:/opt/       # Mount layer contents
+    environment:
+      - AWS_LAMBDA_FUNCTION_HANDLER=index.lambda_handler
+      - AWS_LAMBDA_RUNTIME_API=http://localhost:8080
+      - AWS_S3_ENDPOINT=http://localstack:4566
+    command: ["index.lambda_handler"]  # Default handler to run

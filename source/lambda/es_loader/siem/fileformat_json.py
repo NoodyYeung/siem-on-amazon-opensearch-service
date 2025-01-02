@@ -35,10 +35,17 @@ class FileFormatJson(FileFormatBase):
             while index < size:
                 raw_event, offset = decoder.raw_decode(line, index)
                 raw_event, _ = self._check_cwe_and_strip_header(raw_event)
-                if delimiter and (delimiter in raw_event):
+                logger.info(raw_event)
+                if (delimiter and (delimiter in raw_event)):  
+                # or (delimiter and ('detail' in raw_event) and (delimiter in raw_event['detail'])):
+                
                     # multiple evets in 1 json
+                    # if (delimiter and (delimiter in raw_event)):
                     for record in raw_event[delimiter]:
                         count += 1
+                    # else:
+                    #     for record in raw_event['detail'][delimiter]:
+                    #         count += 1
                 elif not delimiter:
                     count += 1
                 search = json.decoder.WHITESPACE.search(line, offset)
@@ -104,7 +111,7 @@ class FileFormatJson(FileFormatBase):
 
     def _check_cwe_and_strip_header(
             self, dict_obj, logmeta={}, need_meta=False):
-        if "detail-type" in dict_obj and "resources" in dict_obj:
+        if ("detail-type" in dict_obj or "detailType" in dict_obj) and "resources" in dict_obj:
             if need_meta:
                 logmeta = {'cwe_id': dict_obj['id'],
                            'cwe_source': dict_obj['source'],

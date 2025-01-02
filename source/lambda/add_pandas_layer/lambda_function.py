@@ -160,7 +160,7 @@ def setup_lambda_layer(lambda_client, lambda_info):
     if not new_pandas_layer_arn:
         logger.info('X203: The managed layer is not found')
         logger.info('M201: publish custom layer')
-        s3_resource = boto3.resource('s3')
+        s3_resource = boto3.resource('s3',endpoint_url=S3_ENDPOINT_DNS)
         s3bucket = os.getenv(
             'GEOIP_BUCKET', f"aes-siem-{lambda_info['account']}-geo")
 

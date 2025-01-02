@@ -1,0 +1,14 @@
+{
+  "name": "Lambda Dev Container",
+  "image": "siem-lambda-container",  // Reference the image
+  "settings": {
+    "python.pythonPath": "/usr/local/bin/python"
+  },
+  "extensions": [
+    "ms-python.python",
+    "ms-azuretools.vscode-docker",
+    "ms-azuretools.vscode-azurefunctions"
+  ],
+  "forwardPorts": [9000],
+  "remoteUser": "vscode"
+}

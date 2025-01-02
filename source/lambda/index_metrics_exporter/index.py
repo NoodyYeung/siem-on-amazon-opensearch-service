@@ -44,7 +44,7 @@ client = OpenSearch(
     use_ssl=True, verify_certs=True, connection_class=RequestsHttpConnection
 )
 
-s3_resource = boto3.resource('s3')
+s3_resource = boto3.resource('s3',endpoint_url=S3_ENDPOINT_DNS)
 bucket = s3_resource.Bucket(BUCKET_NAME)
 
 

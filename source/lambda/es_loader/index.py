@@ -29,8 +29,8 @@ logger = Logger(stream=sys.stdout, log_record_order=["level", "message"])
 logger.info(f'version: {__version__}')
 logger.info(f'boto3: {boto3.__version__}')
 warnings.filterwarnings("ignore", "No metrics to publish*")
-metrics = Metrics()
-
+metrics = Metrics(namespace='siem', service='siem_service')
+logger.info(f'1')
 SQS_SPLITTED_LOGS_URL = None
 if 'SQS_SPLITTED_LOGS_URL' in os.environ:
     SQS_SPLITTED_LOGS_URL = os.environ['SQS_SPLITTED_LOGS_URL']
@@ -38,7 +38,8 @@ ES_HOSTNAME = utils.get_es_hostname()
 SERVICE = ES_HOSTNAME.split('.')[2]
 AOSS_TYPE = os.getenv('AOSS_TYPE', '')
 docid_set = set()
-
+S3_ENDPOINT_DNS = os.environ.get('S3_ENDPOINT_DNS')
+logger.info(f'2')
 
 def extract_logfile_from_s3(record):
     if 's3' in record:
@@ -392,6 +393,7 @@ def output_metrics(metrics, logfile=None, collected_metrics={}):
 
 def observability_decorator_switcher(func):
     if os.environ.get('AWS_EXECUTION_ENV'):
+        logger.info("observability_decorator_switcher 1 " + os.environ.get("AWS_EXECUTION_ENV"))
         @metrics.log_metrics
         @logger.inject_lambda_context(clear_state=True)
         @wraps(func)
@@ -399,28 +401,44 @@ def observability_decorator_switcher(func):
             return func(*args, **kwargs)
         return decorator
     else:
+        logger.info("observability_decorator_switcher 2 " + os.environ.get("AWS_EXECUTION_ENV"))
+
         # local environment
         @wraps(func)
         def decorator(*args, **kwargs):
             return func(*args, **kwargs)
         return decorator
+logger.info(f'3')
 
 
 awsauth = utils.create_awsauth(ES_HOSTNAME)
 es_conn = utils.create_es_conn(awsauth, ES_HOSTNAME)
+
+logger.info(f'4')
+
 if SERVICE == 'es':
+    logger.info(f'4.1')
+
     DOMAIN_INFO = es_conn.info()
+    logger.info(f'4.2')
+
     logger.info(DOMAIN_INFO)
+    
+    logger.info(f'4.3')
     READ_ONLY_INDICES = utils.get_read_only_indices(
         es_conn, awsauth, ES_HOSTNAME)
     logger.info(json.dumps({'READ_ONLY_INDICES': READ_ONLY_INDICES}))
 elif SERVICE == 'aoss':
     READ_ONLY_INDICES = ''
+
+logger.info(f'5')
+
 user_libs_list = utils.find_user_custom_libs()
 etl_config = utils.get_etl_config()
 utils.load_modules_on_memory(etl_config, user_libs_list)
 logtype_s3key_dict = utils.create_logtype_s3key_dict(etl_config)
 exclusion_conditions = utils.get_exclusion_conditions()
+logger.info(f'6')
 
 builtin_log_exclusion_patterns: dict = (
     utils.make_exclude_own_log_patterns(etl_config))
@@ -429,11 +447,16 @@ custom_log_exclusion_patterns: dict = (
     utils.convert_csv_into_log_patterns(csv_filename))
 log_exclusion_patterns: dict = utils.merge_log_exclusion_patterns(
     builtin_log_exclusion_patterns, custom_log_exclusion_patterns)
+logger.info("End of merge_log_exclusion_patterns")
 # e.g. log_exclusion_patterns['cloudtrail'] = [pattern1, pattern2]
 
 s3_session_config = utils.make_s3_session_config(etl_config)
-s3_client = boto3.client('s3', config=s3_session_config)
+s3_client = boto3.client('s3', config=s3_session_config, endpoint_url = S3_ENDPOINT_DNS)
 sqs_queue = utils.sqs_queue(SQS_SPLITTED_LOGS_URL)
+logger.info("End of make_s3_session_config and sqs_queue")
+
+# control_tower_s3_client = None
+# security_lake_s3_client = None
 
 control_tower_log_buckets = os.environ.get('CONTROL_TOWER_LOG_BUCKETS', '')
 control_tower_log_bucket_list = (
@@ -444,6 +467,7 @@ control_tower_role_session_name = os.environ.get(
 control_tower_s3_client = utils.get_s3_client_for_crosss_account(
     config=s3_session_config, role_arn=control_tower_role_arn,
     role_session_name=control_tower_role_session_name)
+logger.info("End of get_s3_client_for_crosss_account")
 
 security_lake_log_buckets = os.environ.get('SECURITY_LAKE_LOG_BUCKETS', '')
 security_lake_role_arn = os.environ.get('SECURITY_LAKE_ROLE_ARN')
@@ -454,9 +478,13 @@ security_lake_s3_client = utils.get_s3_client_for_crosss_account(
     config=s3_session_config, role_arn=security_lake_role_arn,
     role_session_name=security_lake_role_session_name,
     external_id=security_lake_external_id)
+logger.info("End of get_s3_client_for_crosss_account")
 
+logger.info("Start of geodb.GeoDB(s3_session_config)")
 geodb_instance = geodb.GeoDB(s3_session_config)
+logger.info('Start of  ioc.DB(s3_session_config)')
 ioc_instance = ioc.DB(s3_session_config)
+logger.info('Start of  xff.DB(s3_session_config)')
 xff_instance = xff.DB(s3_session_config)
 utils.show_local_dir()
 
@@ -529,6 +557,7 @@ def process_record(record):
     # 作成したデータをESにPUTしてメトリクスを収集する
     (collected_metrics, error_reason_list, retry_needed) = (
         bulkloads_into_opensearch(es_entries, collected_metrics))
+    logger.info("before output_metrics")
     output_metrics(metrics, logfile=logfile,
                    collected_metrics=collected_metrics)
     if logfile.error_logs_count > 0:
