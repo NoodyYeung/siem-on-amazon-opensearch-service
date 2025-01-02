@@ -2,7 +2,7 @@
 # SPDX-License-Identifier: MIT-0
 __copyright__ = ('Copyright Amazon.com, Inc. or its affiliates. '
                  'All Rights Reserved.')
-__version__ = '2.10.2a'
+__version__ = '2.10.3'
 __license__ = 'MIT-0'
 __author__ = 'Akihiro Nakajima'
 __url__ = 'https://github.com/aws-samples/siem-on-amazon-opensearch-service'
@@ -99,7 +99,7 @@ RE_INSTANCEID = re.compile(
     r'(\W|_|^)(?P<instanceid>i-([0-9a-z]{8}|[0-9a-z]{17}))(\W|_|$)')
 RE_ACCOUNT = re.compile(r'\W([0-9]{12})/')
 RE_REGION = re.compile(
-    r'(global|(us|ap|ca|eu|il|me|sa|af|cn)-(gov-)?[a-zA-Z]+-[0-9])')
+    r'(global|(us|ap|ca|eu|il|me|mx|sa|af|cn)-(gov-)?[a-zA-Z]+-[0-9])')
 # for timestamp
 RE_WITH_NANOSECONDS = re.compile(r'(.*)([0-9]{2}\.[0-9]{1,9})(.*)')
 RE_SYSLOG_FORMAT = re.compile(r'([A-Z][a-z]{2})\s+(\d{1,2})\s+'
@@ -307,12 +307,6 @@ def parse_xff(xff: str) -> list:
 #############################################################################
 def get_timestr_from_logdata_dict(logdata_dict, timestamp_key, has_nanotime):
     timestr = value_from_nesteddict_by_dottedkey(logdata_dict, timestamp_key)
-    # 末尾がZはPythonでは対応していないのでカットしてTZを付与
-    try:
-        timestr = timestr.replace('Z', '+00:00')
-    except AttributeError:
-        # int such as epoch
-        pass
     if has_nanotime:
         m = RE_WITH_NANOSECONDS.match(timestr)
         if m and m.group(3):
@@ -323,7 +317,7 @@ def get_timestr_from_logdata_dict(logdata_dict, timestamp_key, has_nanotime):
 
 def convert_timestr_to_datetime_wrapper(timestr, timestamp_key,
                                         timestamp_format, TZ):
-    if type(timestamp_format) == list:
+    if type(timestamp_format) is list:
         timestamp_format_list = timestamp_format
     else:
         timestamp_format_list = [timestamp_format, ]
@@ -421,8 +415,6 @@ def convert_syslog_to_datetime(timestr, TZ):
 
 @lru_cache(maxsize=1024)
 def convert_iso8601_to_datetime(timestr, TZ, timestamp_key):
-    timestr = timestr.replace('+0000', '')
-    # Python datetime.fromisoformat can't parser +0000 format.
     try:
         dt = datetime.fromisoformat(timestr)
     except ValueError:

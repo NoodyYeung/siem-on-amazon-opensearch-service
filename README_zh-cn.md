@@ -166,7 +166,7 @@ SIEM on OpenSearch Service大概需要30分钟来完成部署。随后即可着�
 1. 导航至 [OpenSearch Service控制台](https://console.amazonaws.cn/esv3/home?)
 1. 选定域: [**aes-siem**]
 1. 选择 [**Actions**] 图标，而后在下拉清单中选择 [**Upgrade domain**]
-1. 在 "Version to upgrade to"部分，选择 [**OpenSearch 2.9**] 后选择[**Submit**]
+1. 在 "Version to upgrade to"部分，选择 [**OpenSearch 2.11**] 后选择[**Submit**]
 
 如果您选择使用CloudFormation进行初始设置，请继续执行下一步。如果您使用AWS CDK进行初设置，请参阅[高级部署](docs/deployment.md)中的 “使用AWS CDK更新SIEM” 部分。
 
@@ -194,7 +194,7 @@ https://aes-siem-<REGION>.s3.amazonaws.com/siem-on-amazon-opensearch-service-chi
 
 ### 在部署之后，变更OpenSearch Service域资源
 
-如果您希望对OpenSearch Service域做出变更，例如变更OpenSearch Service的访问策略、变更实例类型、变更可用区或添加新可用区，或者变更UltraWarm，请通过 [OpenSearch Service 管理控制台](https://console.aws.amazon.com/es/home?) 执行变更操作。
+如果您希望对OpenSearch Service域做出变更，例如变更OpenSearch Service的访问策略、变更实例类型、变更可用区或添加新可用区，或者变更UltraWarm，请通过 [OpenSearch Service 管理控制台](https://console.aws.amazon.com/aos/home?) 执行变更操作。
 
 ### 管理SIEM索引与定製化设置
 

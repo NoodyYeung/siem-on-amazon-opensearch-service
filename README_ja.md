@@ -47,7 +47,7 @@ SIEM on OpenSearch Service は以下のログを取り込むことができま�
 |ネットワーキングとコンテンツ配信|AWS Client VPN|connection log|
 |ストレージ|Amazon FSx for Windows File Server|audit log|
 |ストレージ|Amazon Simple Storage Service (Amazon S3)|access log|
-|データベース|Amazon Relational Database Service (Amazon RDS)<br>(**Experimental Support**)|Amazon Aurora(MySQL)<br>Amazon Aurora(PostgreSQL)<br>Amazon RDS for MariaDB<br>Amazon RDS for MySQL<br>Amazon RDS for PostgreSQL|
+|データベース|Amazon Relational Database Service (Amazon RDS)|Amazon Aurora(MySQL)<br>Amazon Aurora(PostgreSQL)<br>Amazon RDS for MariaDB<br>Amazon RDS for MySQL<br>Amazon RDS for PostgreSQL|
 |データベース|Amazon ElastiCache|ElastiCache for Redis SLOWLOG|
 |分析|Amazon OpenSearch Service|Audit logs|
 |分析|Amazon Managed Streaming for Apache Kafka (Amazon MSK)|Broker log|
@@ -131,12 +131,12 @@ SIEM on OpenSearch Service を新しいバージョンにアップデートす�
 
 ### OpenSearch Service のドメインのアップグレード
 
-OpenSearch Service を OpenSearch 1.0 - 2.9 または Elasticsearch 7.10 にアップグレードします。一部の Dashboard は OpenSearch Service 1.1 以上を前提にしています。推奨バージョンは OpenSearch 2.9 の「互換性モードを有効化」です。
+OpenSearch Service を OpenSearch 1.0 - 2.11 または Elasticsearch 7.10 にアップグレードします。一部の Dashboard は OpenSearch Service 1.3 以上を前提にしています。推奨バージョンは OpenSearch 2.11 の「互換性モードを有効化」です。
 
-1. [OpenSearch Service コンソール](https://console.aws.amazon.com/es/home?) に移動
+1. [OpenSearch Service コンソール](https://console.aws.amazon.com/aos/home?) に移動
 1. [**aes-siem**] ドメインを選択
 1. [**アクション**] アイコンを選択して、プルダウンリストから [**ドメインのアップグレード**] を選択
-1. アップグレード先のバージョンで [**OpenSearch 2.9**] (推奨)、[**OpenSearch 1.0 - 2.7**] または [**Elasticsearch 7.10**] を選択
+1. アップグレード先のバージョンで [**OpenSearch 2.11**] (推奨)、[**OpenSearch 1.0 - 2.9**] または [**Elasticsearch 7.10**] を選択
 1. OpenSearch の場合は、「互換性モードを有効化」にチェックを入れる (推奨)
 1. [**送信**] を選択
 
@@ -166,7 +166,7 @@ https://aes-siem-<REGION>.s3.amazonaws.com/siem-on-amazon-opensearch-service.tem
 
 ### デプロイ後の OpenSearch Service ドメインのリソース変更
 
-OpenSearch Service のアクセスポリシーの変更、インスタンスのスペック変更、AZ の追加と変更、UltraWarm への変更等の OpenSearch Service ドメイン自体の変更は、AWS マネジメントコンソールの [OpenSearch Service コンソール](https://console.aws.amazon.com/es/home?) から実行してください
+OpenSearch Service のアクセスポリシーの変更、インスタンスのスペック変更、AZ の追加と変更、UltraWarm への変更等の OpenSearch Service ドメイン自体の変更は、AWS マネジメントコンソールの [OpenSearch Service コンソール](https://console.aws.amazon.com/aos/home?) から実行してください
 
 ### インデックス管理とカスタマイズ
 
