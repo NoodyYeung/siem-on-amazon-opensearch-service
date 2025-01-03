@@ -1,0 +1,124 @@
+PUT _component_template/component_template_log-aws-pa-firewall-system
+{
+  "template": {
+    "settings": {
+      "index.refresh_interval": "2s",
+      "index.mapping.ignore_malformed": true,
+      "index.max_docvalue_fields_search": 200,
+      "index.number_of_shards": 3
+    },
+    "mappings": {
+      "properties": {
+        "receive_time": {
+          "type": "keyword"
+        },
+        "identifiers": {
+          "properties": {
+            "serial": {
+              "type": "keyword"
+            }
+          }
+        },
+        "type": {
+          "type": "keyword"
+        },
+        "content_threat_type": {
+          "type": "keyword"
+        },
+        "future_use_1": {
+          "type": "integer"
+        },
+        "generated_time": {
+          "type": "date",
+          "format": "yyyy/MM/dd HH:mm:ss"
+        },
+        "virtual_system": {
+          "type": "keyword"
+        },
+        "event_id": {
+          "type": "keyword"
+        },
+        "object": {
+          "type": "keyword"
+        },
+        "future_use_2": {
+          "type": "integer"
+        },
+        "future_use_3": {
+          "type": "integer"
+        },
+        "module": {
+          "type": "keyword"
+        },
+        "severity": {
+          "type": "keyword"
+        },
+        "description": {
+          "type": "text"
+        },
+        "sequence_number": {
+          "type": "long"
+        },
+        "action_flags": {
+          "type": "keyword"
+        },
+        "data_grouping": {
+          "properties": {
+            "hier_level_1": {
+              "type": "keyword"
+            },
+            "hier_level_2": {
+              "type": "keyword"
+            },
+            "hier_level_3": {
+              "type": "keyword"
+            },
+            "hier_level_4": {
+              "type": "keyword"
+            }
+          }
+        },
+        "virtual_system_name": {
+          "type": "keyword"
+        },
+        "device": {
+          "properties": {
+            "name": {
+              "type": "keyword"
+            }
+          }
+        },
+        "future_use_4": {
+          "type": "integer"
+        },
+        "future_use_5": {
+          "type": "integer"
+        },
+        "technology": {
+          "properties": {
+            "high_res_timestamp": {
+              "type": "date",
+              "format": "strict_date_optional_time||epoch_millis"
+            }
+          }
+        }
+      }
+    }
+  },
+  "version": 1
+}
+
+
+PUT _index_template/log-aws-pa-firewall-system 
+{
+  "index_patterns": ["log-aws-pa-firewall-system-*"],
+  "priority": 2,
+  "composed_of": [
+    "component_template_log",
+    "component_template_log-aws",
+    "component_template_log-aws-pa-firewall-system"],
+  "_meta": {"description": "Provided by AWS. Do not edit"},
+  "version": 2
+ }
+
+# Last step: Create index pattern in https://vpc-hkg-hkma-sys-log-nonprd-os-y4wj26xeod3fu7ykvyqa7uga54.ap-east-1.es.amazonaws.com/_dashboards/app/management/opensearch-dashboards/indexPatterns/

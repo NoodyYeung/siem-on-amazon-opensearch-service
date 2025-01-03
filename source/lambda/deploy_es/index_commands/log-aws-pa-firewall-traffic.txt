@@ -1,0 +1,511 @@
+
+
+PUT _component_template/component_template_log-aws-pa-firewall-traffic
+{
+  "template": {
+    "settings": {
+      "index.refresh_interval" : "2s",
+      "index.mapping.ignore_malformed": true,
+      "index.max_docvalue_fields_search": 200,
+      "index.number_of_shards": 3
+    },
+    "mappings": {
+      "dynamic_templates": [
+        {
+          "attributes_map": {
+            "path_match": "attributes.*",
+            "mapping": {
+              "type": "keyword"
+            }
+          }
+        },
+        {
+          "events_attributes_map": {
+            "path_match": "events.attributes.*",
+            "mapping": {
+              "type": "keyword"
+            }
+          }
+        },
+        {
+          "links_attributes_map": {
+            "path_match": "links.attributes.*",
+            "mapping": {
+              "type": "keyword"
+            }
+          }
+        },
+        {
+          "instrumentation_scope_attributes_map": {
+            "path_match": "instrumentationScope.attributes.*",
+            "mapping": {
+              "type": "keyword"
+            }
+          }
+        },
+        {
+          "resources_map": {
+            "path_match": "resource.*",
+            "mapping": {
+              "type": "keyword"
+            }
+          }
+        }
+      ],
+      "properties": {
+        "receive_time": {
+          "type": "keyword"
+        },
+        "source": {
+          "properties": {
+            "ip": {
+              "type": "ip"
+            },
+            "port": {
+              "type": "integer"
+            }
+          }
+        },
+        "destination": {
+          "properties": {
+            "ip": {
+              "type": "ip"
+            },
+            "port": {
+              "type": "integer"
+            }
+          }
+        },
+        "nat": {
+          "properties": {
+            "source": {
+              "properties": {
+                "ip": {
+                  "type": "ip"
+                },
+                "port": {
+                  "type": "integer"
+                }
+              }
+            },
+            "destination": {
+              "properties": {
+                "ip": {
+                  "type": "ip"
+                },
+                "port": {
+                  "type": "integer"
+                }
+              }
+            }
+          }
+        },
+        "network": {
+          "properties": {
+            "transport": {
+              "type": "keyword"
+            },
+            "bytes": {
+              "type": "long"
+            },
+            "bytes_sent": {
+              "type": "long"
+            },
+            "bytes_received": {
+              "type": "long"
+            },
+            "packets": {
+              "type": "long"
+            },
+            "packets_sent": {
+              "type": "long"
+            },
+            "packets_received": {
+              "type": "long"
+            },
+            "protocol": {
+              "type": "keyword"
+            },
+            "flags": {
+              "type": "keyword"
+            },
+            "type": {
+              "type": "keyword"
+            },
+            "inbound_interface": {
+              "type": "keyword"
+            },
+            "outbound_interface": {
+              "type": "keyword"
+            },
+            "link": {
+              "properties": {
+                "change_count": {
+                  "type": "integer"
+                },
+                "switches": {
+                  "type": "keyword"
+                }
+              }
+            },
+            "tunnel": {
+              "properties": {
+                "id_imsi": {
+                  "type": "keyword"
+                },
+                "assoc_id": {
+                  "type": "keyword"
+                },
+                "type": {
+                  "type": "keyword"
+                }
+              }
+            }
+          }
+        },
+        "event": {
+          "properties": {
+            "action": {
+              "type": "keyword"
+            },
+            "kind": {
+              "type": "keyword"
+            },
+            "category": {
+              "type": "keyword"
+            },
+            "outcome": {
+              "type": "keyword"
+            }
+          }
+        },
+        "session": {
+          "properties": {
+            "id": {
+              "type": "keyword"
+            },
+            "repeat_count": {
+              "type": "integer"
+            },
+            "start_time": {
+              "type": "date",
+              "format": "yyyy/MM/dd HH:mm:ss"
+            },
+            "elapsed_time": {
+              "type": "integer"
+            },
+            "end_reason": {
+              "type": "keyword"
+            }
+          }
+        },
+        "geo": {
+          "properties": {
+            "source": {
+              "properties": {
+                "location": {
+                  "type": "keyword"
+                }
+              }
+            },
+            "destination": {
+              "properties": {
+                "location": {
+                  "type": "keyword"
+                }
+              }
+            }
+          }
+        },
+        "device": {
+          "properties": {
+            "name": {
+              "type": "keyword"
+            },
+            "type": {
+              "type": "keyword"
+            },
+            "vendor": {
+              "type": "keyword"
+            },
+            "model": {
+              "type": "keyword"
+            },
+            "os": {
+              "properties": {
+                "family": {
+                  "type": "keyword"
+                },
+                "version": {
+                  "type": "keyword"
+                }
+              }
+            }
+          }
+        },
+        "user": {
+          "properties": {
+            "src": {
+              "properties": {
+                "username": {
+                  "type": "keyword"
+                }
+              }
+            },
+            "dst": {
+              "properties": {
+                "username": {
+                  "type": "keyword"
+                }
+              }
+            },
+            "dynusergroup": {
+              "properties": {
+                "name": {
+                  "type": "keyword"
+                }
+              }
+            }
+          }
+        },
+        "application": {
+          "properties": {
+            "name": {
+              "type": "keyword"
+            },
+            "subcategory": {
+              "type": "keyword"
+            },
+            "category": {
+              "type": "keyword"
+            },
+            "technology": {
+              "type": "keyword"
+            },
+            "risk": {
+              "type": "keyword"
+            },
+            "characteristic": {
+              "type": "keyword"
+            },
+            "container": {
+              "type": "keyword"
+            },
+            "tunneled": {
+              "type": "keyword"
+            },
+            "is_saas": {
+              "type": "boolean"
+            },
+            "sanctioned_state": {
+              "type": "keyword"
+            },
+            "offloaded": {
+              "type": "keyword"
+            }
+          }
+        },
+        "data_grouping": {
+          "properties": {
+            "hier_level_1": {
+              "type": "keyword"
+            },
+            "hier_level_2": {
+              "type": "keyword"
+            },
+            "hier_level_3": {
+              "type": "keyword"
+            },
+            "hier_level_4": {
+              "type": "keyword"
+            }
+          }
+        },
+        "firewall": {
+          "properties": {
+            "rule": {
+              "properties": {
+                "name": {
+                  "type": "keyword"
+                },
+                "uuid": {
+                  "type": "keyword"
+                }
+              }
+            },
+            "policy": {
+              "properties": {
+                "id": {
+                  "type": "keyword"
+                },
+                "name": {
+                  "type": "keyword"
+                }
+              }
+            }
+          }
+        },
+        "logging": {
+          "properties": {
+            "set": {
+              "type": "keyword"
+            },
+            "logset": {
+              "type": "keyword"
+            },
+            "device_name": {
+              "type": "keyword"
+            },
+            "device_serial": {
+              "type": "keyword"
+            },
+            "sequence_number": {
+              "type": "keyword"
+            },
+            "action_source": {
+              "type": "keyword"
+            }
+          }
+        },
+        "identifiers": {
+          "properties": {
+            "serial": {
+              "type": "keyword"
+            },
+            "hostid": {
+              "type": "keyword"
+            },
+            "container_id": {
+              "type": "keyword"
+            },
+            "pod_namespace": {
+              "type": "keyword"
+            },
+            "pod_name": {
+              "type": "keyword"
+            },
+            "src_uuid": {
+              "type": "keyword"
+            },
+            "dst_uuid": {
+              "type": "keyword"
+            },
+            "parent_session_id": {
+              "type": "keyword"
+            }
+          }
+        },
+        "http": {
+          "properties": {
+            "connection": {
+              "type": "keyword"
+            },
+            "x_forwarded_for": {
+              "properties": {
+                "ip": {
+                  "type": "ip"
+                }
+              }
+            }
+          }
+        },
+        "sdwan": {
+          "properties": {
+            "cluster": {
+              "type": "keyword"
+            },
+            "device_type": {
+              "type": "keyword"
+            },
+            "cluster_type": {
+              "type": "keyword"
+            },
+            "site": {
+              "type": "keyword"
+            }
+          }
+        },
+        "edr": {
+          "properties": {
+            "source": {
+              "properties": {
+                "dag": {
+                  "type": "keyword"
+                },
+                "edl": {
+                  "type": "keyword"
+                }
+              }
+            },
+            "destination": {
+              "properties": {
+                "dag": {
+                  "type": "keyword"
+                },
+                "edl": {
+                  "type": "keyword"
+                }
+              }
+            }
+          }
+        },
+        "technology": {
+          "properties": {
+            "high_res_timestamp": {
+              "type": "date",
+              "format": "strict_date_optional_time||epoch_millis"
+            }
+          }
+        },
+        "nssai": {
+          "properties": {
+            "sst": {
+              "type": "keyword"
+            },
+            "sd": {
+              "type": "keyword"
+            }
+          }
+        },
+        "tags": {
+          "properties": {
+            "monitortag": {
+              "type": "keyword"
+            },
+            "imsi": {
+              "type": "keyword"
+            },
+            "imei": {
+              "type": "keyword"
+            }
+          }
+        },
+        "offloaded": {
+          "properties": {
+            "data": {
+              "type": "keyword"
+            }
+          }
+        },
+        "session_owner": {
+          "type": "keyword"
+        }
+      }
+    }
+  }
+}
+
+
+PUT _index_template/log-aws-pa-firewall-traffic 
+{
+  "index_patterns": ["log-aws-pa-firewall-traffic-*"],
+  "priority": 2,
+  "composed_of": [
+    "component_template_log",
+    "component_template_log-aws",
+    "component_template_log-aws-pa-firewall-traffic"],
+  "_meta": {"description": "Provided by AWS. Do not edit"},
+  "version": 2
+ }
+
+# Last step: Create index pattern in https://vpc-hkg-hkma-sys-log-nonprd-os-y4wj26xeod3fu7ykvyqa7uga54.ap-east-1.es.amazonaws.com/_dashboards/app/management/opensearch-dashboards/indexPatterns/

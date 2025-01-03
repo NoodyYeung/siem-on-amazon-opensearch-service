@@ -163,38 +163,94 @@ def process_log_data(log_data):
                 
     return groups
 
+
 def process_system_log(message):
+    """
+    Processes system log CSV data and returns a pandas DataFrame with appropriately mapped ECS fields.
+    
+    Parameters:
+    - message (str): A string containing CSV-formatted system log data.
+    
+    Returns:
+    - pd.DataFrame: A DataFrame containing the processed system log data.
+    """
+    
+    # Define the new columns list with snake_case naming and FUTURE_USE fields appropriately renamed
+    columns = [
+        "receive_time",
+        "serial_number",
+        "type",
+        "content_threat_type",
+        "future_use_1",
+        "generated_time",
+        "virtual_system",
+        "event_id",
+        "object",
+        "future_use_2",
+        "future_use_3",
+        "module",
+        "severity",
+        "description",
+        "sequence_number",
+        "action_flags",
+        "device_group_hierarchy_level_1",
+        "device_group_hierarchy_level_2",
+        "device_group_hierarchy_level_3",
+        "device_group_hierarchy_level_4",
+        "virtual_system_name",
+        "device_name",
+        "future_use_4",
+        "future_use_5",
+        "high_resolution_timestamp"
+    ]
+    
     # Use csv.reader to parse the CSV data within the message
-    csv_reader = csv.reader(io.StringIO(message), lineterminator='')
-    columns = ["receive_time", "serial", "type", "subtype", "time_generated", "vsys", "eventid", "object", "module", "severity", "opaque", "seqno", "actionflags", "dg_hier_level_1", "dg_hier_level_2", "dg_hier_level_3", "dg_hier_level_4", "vsys_name", "device_name", "high_res_timestamp"]
+    csv_reader = csv.reader(io.StringIO(message), delimiter=',', quotechar='"')
+    
+    # Initialize a list to hold all system logs
+    system_logs = []
+    
     for fields in csv_reader:
+        # Skip empty lines
+        if not fields or all(field.strip() == "" for field in fields):
+            continue
+        
+        # Build the system_log dictionary by mapping ECS fields to CSV fields
         system_log = {
             "receive_time": fields[0].strip(),
-            "serial": fields[1].strip(),
+            "serial_number": fields[1].strip(),
             "type": fields[2].strip(),
-            "subtype": fields[3].strip(),
-            "time_generated": fields[4].strip(),
-            "vsys": fields[5].strip(),
-            "eventid": fields[6].strip(),
-            "object": fields[7].strip(),
-            "module": fields[8].strip(),
-            "severity": fields[9].strip(),
-            "opaque": fields[10].strip(),
-            "seqno": fields[11].strip(),
-            "actionflags": fields[12].strip(),
-            "dg_hier_level_1": fields[13].strip(),
-            "dg_hier_level_2": fields[14].strip(),
-            "dg_hier_level_3": fields[15].strip(),
-            "dg_hier_level_4": fields[16].strip(),
-            "vsys_name": fields[17].strip(),
-            "device_name": fields[18].strip(),
-            "high_res_timestamp": fields[19].strip()
+            "content_threat_type": fields[3].strip(),
+            "future_use_1": fields[4].strip(),
+            "generated_time": fields[5].strip(),
+            "virtual_system": fields[6].strip(),
+            "event_id": fields[7].strip(),
+            "object": fields[8].strip(),
+            "future_use_2": fields[9].strip(),
+            "future_use_3": fields[10].strip(),
+            "module": fields[11].strip(),
+            "severity": fields[12].strip(),
+            "description": fields[13].strip(),
+            "sequence_number": fields[14].strip(),
+            "action_flags": fields[15].strip(),
+            "device_group_hierarchy_level_1": fields[16].strip(),
+            "device_group_hierarchy_level_2": fields[17].strip(),
+            "device_group_hierarchy_level_3": fields[18].strip(),
+            "device_group_hierarchy_level_4": fields[19].strip(),
+            "virtual_system_name": fields[20].strip(),
+            "device_name": fields[21].strip(),
+            "future_use_4": fields[22].strip(),
+            "future_use_5": fields[23].strip(),
+            "high_resolution_timestamp": fields[24].strip()
         }
-        df = pd.DataFrame([system_log], columns=columns)
-        return df
-import csv
-import io
-import pandas as pd
+        
+        system_logs.append(system_log)
+    
+    # Create a DataFrame from the list of system logs
+    df = pd.DataFrame(system_logs, columns=columns)
+    
+    return df
+
 
 def process_traffic_log(message):
     # Define the new columns list with snake_case naming and FUTURE_USE fields appropriately renamed
@@ -323,12 +379,6 @@ def process_traffic_log(message):
     
     for fields in csv_reader:
         # Ensure that the number of fields matches the expected count
-        if len(fields) < 110:
-            # Handle missing fields by padding with empty strings
-            fields += [''] * (110 - len(fields))
-        elif len(fields) > 110:
-            # If there are extra fields, trim them
-            fields = fields[:110]
         
         traffic_log = {
             "receive_time": fields[0].strip(),
