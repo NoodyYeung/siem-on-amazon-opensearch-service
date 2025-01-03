@@ -1083,244 +1083,290 @@ def process_data_filtering_log(message):
     
     return df
 
+
+
 def process_decryption_log(message):
-    # Use csv.reader to parse the CSV data within the message
-    csv_reader = csv.reader(io.StringIO(message), lineterminator='')
+    """
+    Processes decryption log CSV data and returns a pandas DataFrame with appropriately mapped fields.
+    
+    Parameters:
+    - message (str): A string containing CSV-formatted decryption log data.
+    
+    Returns:
+    - pd.DataFrame: A DataFrame containing the processed decryption log data.
+    """
+    
+    # Define the updated columns based on the provided structure
     columns = [
-        "receive_time", "serial", "type", "subtype", "config_ver", "time_generated",
-        "src", "dst", "natsrc", "natdst", "rule", "srcuser", "dstuser", "app",
-        "vsys", "from", "to", "inbound_if", "outbound_if", "logset", "time_logged",
-        "sessionid", "repeatcnt", "sport", "dport", "natsport", "natdport", "flags",
-        "proto", "action", "tunnel", "FUTURE_USE1", "FUTURE_USE2",
-        "src_uuid", "dst_uuid", "rule_uuid", "hs_stage_c2f", "hs_stage_f2s",
-        "tls_version", "tls_keyxchg", "tls_enc", "tls_auth", "policy_name",
-        "ec_curve", "err_index", "root_status", "chain_status", "proxy_type",
-        "cert_serial", "fingerprint", "notbefore", "notafter", "cert_ver",
-        "cert_size", "cn_len", "issuer_len", "rootcn_len", "sni_len",
-        "cert_flags", "cn", "issuer_cn", "root_cn", "sni", "error",
-        "container_id", "pod_namespace", "pod_name", "src_edl", "dst_edl",
-        "src_dag", "dst_dag", "high_res_timestamp", "src_category",
-        "src_profile", "src_model", "src_vendor", "src_osfamily",
-        "src_osversion", "src_host", "src_mac", "dst_category", "dst_profile",
-        "dst_model", "dst_vendor", "dst_osfamily", "dst_osversion", "dst_host",
-        "dst_mac", "seqno", "actionflags", "dg_hier_level_1", "dg_hier_level_2",
-        "dg_hier_level_3", "dg_hier_level_4", "vsys_name", "device_name",
-        "subcategory_of_app", "category_of_app", "technology_of_app",
-        "risk_of_app", "characteristic_of_app", "container_of_app",
-        "is_saas_of_app", "sanctioned_state_of_app"
+        "receive_time",
+        "serial_number",
+        "type",
+        "threat_content_type",
+        "config_version",
+        "generate_time",
+        "source_address",
+        "destination_address",
+        "nat_source_ip",
+        "nat_destination_ip",
+        "rule",
+        "source_user",
+        "destination_user",
+        "application",
+        "virtual_system",
+        "source_zone",
+        "destination_zone",
+        "inbound_interface",
+        "outbound_interface",
+        "log_action",
+        "time_logged",
+        "session_id",
+        "repeat_count",
+        "source_port",
+        "destination_port",
+        "nat_source_port",
+        "nat_destination_port",
+        "flags",
+        "ip_protocol",
+        "action",
+        "tunnel",
+        "future_use_1",
+        "future_use_2",
+        "source_vm_uuid",
+        "destination_vm_uuid",
+        "uuid_for_rule",
+        "stage_client_to_firewall",
+        "stage_firewall_to_server",
+        "tls_version",
+        "key_exchange_algorithm",
+        "encryption_algorithm",
+        "hash_algorithm",
+        "policy_name",
+        "elliptic_curve",
+        "error_index",
+        "root_status",
+        "chain_status",
+        "proxy_type",
+        "certificate_serial_number",
+        "fingerprint",
+        "certificate_start_date",
+        "certificate_end_date",
+        "certificate_version",
+        "certificate_size",
+        "common_name_length",
+        "issuer_common_name_length",
+        "root_common_name_length",
+        "sni_length",
+        "certificate_flags",
+        "subject_common_name",
+        "issuer_subject_common_name",
+        "root_subject_common_name",
+        "server_name_indication",
+        "error",
+        "container_id",
+        "pod_namespace",
+        "pod_name",
+        "source_external_dynamic_list",
+        "destination_external_dynamic_list",
+        "source_dynamic_address_group",
+        "destination_dynamic_address_group",
+        "high_res_timestamp",
+        "source_device_category",
+        "source_device_profile",
+        "source_device_model",
+        "source_device_vendor",
+        "source_device_os_family",
+        "source_device_os_version",
+        "source_hostname",
+        "source_mac_address",
+        "destination_device_category",
+        "destination_device_profile",
+        "destination_device_model",
+        "destination_device_vendor",
+        "destination_device_os_family",
+        "destination_device_os_version",
+        "destination_hostname",
+        "destination_mac_address",
+        "sequence_number",
+        "action_flags",
+        "device_group_hierarchy_level_1",
+        "device_group_hierarchy_level_2",
+        "device_group_hierarchy_level_3",
+        "device_group_hierarchy_level_4",
+        "virtual_system_name",
+        "device_name",
+        "virtual_system_id",
+        "application_subcategory",
+        "application_category",
+        "application_technology",
+        "application_risk",
+        "application_characteristic",
+        "application_container",
+        "application_saas",
+        "application_sanctioned_state"
     ]
+    
+    # Use csv.reader to parse the CSV data within the message
+    csv_reader = csv.reader(io.StringIO(message), delimiter=',', quotechar='"')
+    
+    # Initialize a list to hold all decryption logs
+    decryption_logs = []
+    
     for fields in csv_reader:
-        decryption_log = {
-            "receive_time": fields[0].strip(),
-            "serial": fields[1].strip(),
-            "type": fields[2].strip(),
-            "subtype": fields[3].strip(),
-            "config_ver": fields[4].strip(),
-            "time_generated": fields[5].strip(),
-            "src": fields[6].strip(),
-            "dst": fields[7].strip(),
-            "natsrc": fields[8].strip(),
-            "natdst": fields[9].strip(),
-            "rule": fields[10].strip(),
-            "srcuser": fields[11].strip(),
-            "dstuser": fields[12].strip(),
-            "app": fields[13].strip(),
-            "vsys": fields[14].strip(),
-            "from": fields[15].strip(),
-            "to": fields[16].strip(),
-            "inbound_if": fields[17].strip(),
-            "outbound_if": fields[18].strip(),
-            "logset": fields[19].strip(),
-            "time_logged": fields[20].strip(),
-            "sessionid": fields[21].strip(),
-            "repeatcnt": fields[22].strip(),
-            "sport": fields[23].strip(),
-            "dport": fields[24].strip(),
-            "natsport": fields[25].strip(),
-            "natdport": fields[26].strip(),
-            "flags": fields[27].strip(),
-            "proto": fields[28].strip(),
-            "action": fields[29].strip(),
-            "tunnel": fields[30].strip(),
-            "FUTURE_USE1": fields[31].strip(),
-            "FUTURE_USE2": fields[32].strip(),
-            "src_uuid": fields[33].strip(),
-            "dst_uuid": fields[34].strip(),
-            "rule_uuid": fields[35].strip(),
-            "hs_stage_c2f": fields[36].strip(),
-            "hs_stage_f2s": fields[37].strip(),
-            "tls_version": fields[38].strip(),
-            "tls_keyxchg": fields[39].strip(),
-            "tls_enc": fields[40].strip(),
-            "tls_auth": fields[41].strip(),
-            "policy_name": fields[42].strip(),
-            "ec_curve": fields[43].strip(),
-            "err_index": fields[44].strip(),
-            "root_status": fields[45].strip(),
-            "chain_status": fields[46].strip(),
-            "proxy_type": fields[47].strip(),
-            "cert_serial": fields[48].strip(),
-            "fingerprint": fields[49].strip(),
-            "notbefore": fields[50].strip(),
-            "notafter": fields[51].strip(),
-            "cert_ver": fields[52].strip(),
-            "cert_size": fields[53].strip(),
-            "cn_len": fields[54].strip(),
-            "issuer_len": fields[55].strip(),
-            "rootcn_len": fields[56].strip(),
-            "sni_len": fields[57].strip(),
-            "cert_flags": fields[58].strip(),
-            "cn": fields[59].strip(),
-            "issuer_cn": fields[60].strip(),
-            "root_cn": fields[61].strip(),
-            "sni": fields[62].strip(),
-            "error": fields[63].strip(),
-            "container_id": fields[64].strip(),
-            "pod_namespace": fields[65].strip(),
-            "pod_name": fields[66].strip(),
-            "src_edl": fields[67].strip(),
-            "dst_edl": fields[68].strip(),
-            "src_dag": fields[69].strip(),
-            "dst_dag": fields[70].strip(),
-            "high_res_timestamp": fields[71].strip(),
-            "src_category": fields[72].strip(),
-            "src_profile": fields[73].strip(),
-            "src_model": fields[74].strip(),
-            "src_vendor": fields[75].strip(),
-            "src_osfamily": fields[76].strip(),
-            "src_osversion": fields[77].strip(),
-            "src_host": fields[78].strip(),
-            "src_mac": fields[79].strip(),
-            "dst_category": fields[80].strip(),
-            "dst_profile": fields[81].strip(),
-            "dst_model": fields[82].strip(),
-            "dst_vendor": fields[83].strip(),
-            "dst_osfamily": fields[84].strip(),
-            "dst_osversion": fields[85].strip(),
-            "dst_host": fields[86].strip(),
-            "dst_mac": fields[87].strip(),
-            "seqno": fields[88].strip(),
-            "actionflags": fields[89].strip(),
-            "dg_hier_level_1": fields[90].strip(),
-            "dg_hier_level_2": fields[91].strip(),
-            "dg_hier_level_3": fields[92].strip(),
-            "dg_hier_level_4": fields[93].strip(),
-            "vsys_name": fields[94].strip(),
-            "device_name": fields[95].strip(),
-            "subcategory_of_app": fields[96].strip(),
-            "category_of_app": fields[97].strip(),
-            "technology_of_app": fields[98].strip(),
-            "risk_of_app": fields[99].strip(),
-            "characteristic_of_app": fields[100].strip(),
-            "container_of_app": fields[101].strip(),
-            "is_saas_of_app": fields[102].strip(),
-            "sanctioned_state_of_app": fields[103].strip()
-        }
-        df = pd.DataFrame([decryption_log], columns=columns)
-        return df
+        # Skip empty lines
+        if not fields or all(field.strip() == "" for field in fields):
+            continue
+        
+        # Build the decryption_log dictionary by mapping ECS fields to CSV fields
+        decryption_log = {columns[i]: fields[i].strip() for i in range(len(fields))}
+        decryption_logs.append(decryption_log)
+    
+    # Define the DataFrame columns to ensure correct ordering
+    df = pd.DataFrame(decryption_logs, columns=columns)
+    
+    return df
+
 
 def process_config_log(message):
-    csv_reader = csv.reader(io.StringIO(message), lineterminator='')
+    """
+    Processes configuration log CSV data and returns a pandas DataFrame with appropriately mapped fields.
+    
+    Parameters:
+    - message (str): A string containing CSV-formatted configuration log data.
+    
+    Returns:
+    - pd.DataFrame: A DataFrame containing the processed configuration log data.
+    """
+    
+    # Define the updated columns based on the provided structure
     columns = [
-        "receive_time", "serial", "type", "subtype", "generated_time", "host",
-        "vsys", "cmd", "admin", "client", "result", "path",
-        "before_change_detail", "after_change_detail", "seqno", "actionflags",
-        "dg_hier_level_1", "dg_hier_level_2", "dg_hier_level_3", "dg_hier_level_4",
-        "vsys_name", "device_name", "dg_id", "comment", "high_res_timestamp"
+        "receive_time",
+        "serial_number",
+        "type",
+        "subtype",
+        "future_use_1",
+        "generated_time",
+        "host",
+        "virtual_system",
+        "command",
+        "admin",
+        "client",
+        "result",
+        "configuration_path",
+        "before_change_detail",
+        "after_change_detail",
+        "sequence_number",
+        "action_flags",
+        "device_group_hierarchy_level_1",
+        "device_group_hierarchy_level_2",
+        "device_group_hierarchy_level_3",
+        "device_group_hierarchy_level_4",
+        "virtual_system_name",
+        "device_name",
+        "device_group",
+        "audit_comment",
+        "future_use_2",
+        "high_resolution_timestamp"
     ]
+    
+    # Use csv.reader to parse the CSV data within the message
+    csv_reader = csv.reader(io.StringIO(message), delimiter=',', quotechar='"')
+    
+    # Initialize a list to hold all configuration logs
+    config_logs = []
+    
     for fields in csv_reader:
-        config_log = {
-            "receive_time": fields[0].strip(),
-            "serial": fields[1].strip(),
-            "type": fields[2].strip(),
-            "subtype": fields[3].strip(),
-            "generated_time": fields[6].strip(),
-            "host": fields[7].strip(),
-            "vsys": fields[8].strip(),
-            "cmd": fields[9].strip(),
-            "admin": fields[10].strip(),
-            "client": fields[11].strip(),
-            "result": fields[12].strip(),
-            "path": fields[13].strip(),
-            "before_change_detail": fields[14].strip(),
-            "after_change_detail": fields[15].strip(),
-            "seqno": fields[16].strip(),
-            "actionflags": fields[17].strip(),
-            "dg_hier_level_1": fields[18].strip(),
-            "dg_hier_level_2": fields[19].strip(),
-            "dg_hier_level_3": fields[20].strip(),
-            "dg_hier_level_4": fields[21].strip(),
-            "vsys_name": fields[22].strip(),
-            "device_name": fields[23].strip(),
-            "dg_id": fields[24].strip(),
-            "comment": fields[25].strip(),
-            "high_res_timestamp": fields[26].strip()
-        }
-        df = pd.DataFrame([config_log], columns=columns)
-        return df
+        # Skip empty lines
+        if not fields or all(field.strip() == "" for field in fields):
+            continue
+
+        
+        # Build the config_log dictionary by mapping ECS fields to CSV fields
+        config_log = {columns[i]: fields[i].strip() for i in range(len(fields))}
+        config_logs.append(config_log)
+    
+    # Create a DataFrame from the list of configuration logs
+    df = pd.DataFrame(config_logs, columns=columns)
+    
+    return df
+
+
 
 def process_authentication_log(message):
-    # Use csv.reader to parse the CSV data within the message
-    csv_reader = csv.reader(io.StringIO(message), lineterminator='')
+    """
+    Processes authentication log CSV data and returns a pandas DataFrame with appropriately mapped fields.
+    
+    Parameters:
+    - message (str): A string containing CSV-formatted authentication log data.
+    
+    Returns:
+    - pd.DataFrame: A DataFrame containing the processed authentication log data.
+    """
+    
+    # Define the updated columns based on the provided structure
     columns = [
-        "receive_time", "serial", "type", "subtype", "authpolicy", "FUTURE_USE",
-        "time_generated", "vsys", "ip", "user", "normalize_user", "object",
-        "authpolicy", "repeatcnt", "authid", "vendor", "logset", "serverprofile",
-        "desc", "clienttype", "event", "factorno", "seqno", "actionflags",
-        "dg_hier_level_1", "dg_hier_level_2", "dg_hier_level_3", "dg_hier_level_4",
-        "vsys_name", "device_name", "vsys_id", "authproto", "rule_uuid",
-        "high_res_timestamp", "src_category", "src_profile", "src_model",
-        "src_vendor", "src_osfamily", "src_osversion", "src_host", "src_mac",
-        "region", "user_agent", "sessionid"
+        "receive_time",
+        "serial_number",
+        "type",
+        "threat_content_type",
+        "future_use_1",
+        "generated_time",
+        "virtual_system",
+        "source_ip",
+        "user",
+        "normalize_user",
+        "object",
+        "authentication_policy",
+        "repeat_count",
+        "authentication_id",
+        "vendor",
+        "log_action",
+        "server_profile",
+        "description",
+        "client_type",
+        "event_type",
+        "factor_number",
+        "sequence_number",
+        "action_flags",
+        "device_group_hierarchy_1",
+        "device_group_hierarchy_2",
+        "device_group_hierarchy_3",
+        "device_group_hierarchy_4",
+        "virtual_system_name",
+        "device_name",
+        "virtual_system_id",
+        "authentication_protocol",
+        "uuid_for_rule",
+        "high_resolution_timestamp",
+        "source_device_category",
+        "source_device_profile",
+        "source_device_model",
+        "source_device_vendor",
+        "source_device_os_family",
+        "source_device_os_version",
+        "source_hostname",
+        "source_mac_address",
+        "region",
+        "future_use_2",
+        "user_agent",
+        "session_id"
     ]
+    
+    # Use csv.reader to parse the CSV data within the message
+    csv_reader = csv.reader(io.StringIO(message), delimiter=',', quotechar='"')
+    
+    # Initialize a list to hold all authentication logs
+    authentication_logs = []
+    
     for fields in csv_reader:
-        authentication_log = {
-            "receive_time": fields[0].strip(),
-            "serial": fields[1].strip(),
-            "type": fields[2].strip(),
-            "subtype": fields[3].strip(),
-            "authpolicy": fields[4].strip(),
-            "FUTURE_USE": fields[5].strip(),
-            "time_generated": fields[6].strip(),
-            "vsys": fields[7].strip(),
-            "ip": fields[8].strip(),
-            "user": fields[9].strip(),
-            "normalize_user": fields[10].strip(),
-            "object": fields[11].strip(),
-            "authpolicy": fields[12].strip(),
-            "repeatcnt": fields[13].strip(),
-            "authid": fields[14].strip(),
-            "vendor": fields[15].strip(),
-            "logset": fields[16].strip(),
-            "serverprofile": fields[17].strip(),
-            "desc": fields[18].strip(),
-            "clienttype": fields[19].strip(),
-            "event": fields[20].strip(),
-            "factorno": fields[21].strip(),
-            "seqno": fields[22].strip(),
-            "actionflags": fields[23].strip(),
-            "dg_hier_level_1": fields[24].strip(),
-            "dg_hier_level_2": fields[25].strip(),
-            "dg_hier_level_3": fields[26].strip(),
-            "dg_hier_level_4": fields[27].strip(),
-            "vsys_name": fields[28].strip(),
-            "device_name": fields[29].strip(),
-            "vsys_id": fields[30].strip(),
-            "authproto": fields[31].strip(),
-            "rule_uuid": fields[32].strip(),
-            "high_res_timestamp": fields[33].strip(),
-            "src_category": fields[34].strip(),
-            "src_profile": fields[35].strip(),
-            "src_model": fields[36].strip(),
-            "src_vendor": fields[37].strip(),
-            "src_osfamily": fields[38].strip(),
-            "src_osversion": fields[39].strip(),
-            "src_host": fields[40].strip(),
-            "src_mac": fields[41].strip(),
-            "region": fields[42].strip(),
-            "user_agent": fields[43].strip(),
-            "sessionid": fields[44].strip()
-        }
-        df = pd.DataFrame([authentication_log], columns=columns)
-        return df
-
+        # Skip empty lines
+        if not fields or all(field.strip() == "" for field in fields):
+            continue
+        
+        # Build the authentication_log dictionary by mapping ECS fields to CSV fields
+        authentication_log = {columns[i]: fields[i].strip() for i in range(len(fields))}
+        authentication_logs.append(authentication_log)
+    
+    # Create a DataFrame from the list of authentication logs
+    df = pd.DataFrame(authentication_logs, columns=columns)
+    
+    return df
