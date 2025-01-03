@@ -64,7 +64,6 @@ def lambda_handler(event, context):
                         groups[key] = []
                     groups[key].extend(val)
             
-            print("groups" ,groups)
             for bucket_name, prefix in LOG_PATHS_PREFIXS.items():
                 if groups.get(bucket_name):
                     dfs = groups[bucket_name]
@@ -82,8 +81,7 @@ def lambda_handler(event, context):
                     # Concat the DataFrames
                     if (len(dfs) == 0):
                         continue
-                    for i in dfs: 
-                        print("type of i ", type(i))
+
                     df = pd.concat(dfs)
                     # Write the DataFrame to a temporary CSV file
                     df.to_csv(tmp_path, index=False)
@@ -114,45 +112,44 @@ def process_log_data(log_data):
     for entry in log_entries:
         if entry:
             try:
-                print("Entry:" , entry)
                 log_json = json.loads(entry)
                 for log_event in log_json.get('logEvents', []):
                     message = log_event.get('message', '')
                     if 'SYSTEM' in message:
                         df = process_system_log(message)
-                        print("[INFO] Processed system log DataFrame: %s" % df)
+                        print("[INFO] Processed system log DataFrame: ")
                         groups["BUCKET_SYSTEM"].append(df)
                         
                     elif 'TRAFFIC' in message:
                         df = process_traffic_log(message)
-                        print("[INFO] Processed traffic log DataFrame: %s" % df)
+                        print("[INFO] Processed traffic log DataFrame: ")
                         groups["BUCKET_TRAFFIC"].append(df)
                     elif 'THREAT' in message:
                         # Check if subtype is 'url'
                         if ',url,' in message.lower():
                             df = process_url_filtering_log(message)
-                            print("[INFO] Processed URL filtering log DataFrame: %s" % df)
+                            print("[INFO] Processed URL filtering log DataFrame: ")
                             groups["BUCKET_THREAT_URL"].append(df)
                         elif ',data,' in message.lower() or ',dlp,' in message.lower() or ',file,' in message.lower():
                             # Handle data filtering logs
                             df = process_data_filtering_log(message)
-                            print("[INFO] Processed data filtering log DataFrame: %s" % df)
+                            print("[INFO] Processed data filtering log DataFrame: ")
                             groups["BUCKET_THREAT_DATA"].append(df)
                         else:
                             df = process_threat_log(message)
-                            print("[INFO] Processed threat log DataFrame: %s" % df)
+                            print("[INFO] Processed threat log DataFrame: ")
                             groups["BUCKET_THREAT_OTHERS"].append(df)
                     elif 'DECRYPTION' in message:
                         df = process_decryption_log(message)
-                        print("[INFO] Processed decryption log DataFrame: %s" % df)
+                        print("[INFO] Processed decryption log DataFrame: ")
                         groups["BUCKET_DECRYPTION"].append(df)
                     elif "CONFIG" in message:
                         df = process_config_log(message)
-                        print("[INFO] Processed config log DataFrame: %s" % df)
+                        print("[INFO] Processed config log DataFrame: ")
                         groups["BUCKET_CONFIG"].append(df)
                     elif 'AUTHENTICATION' in message:
                         df = process_authentication_log(message)
-                        print("[INFO] Processed authentication log DataFrame: %s" % df)
+                        print("[INFO] Processed authentication log DataFrame: ")
                         groups["BUCKET_AUTHENTICATION"].append(df)
                     else:
                         logging.warning("Unknown log type: %s", message)
