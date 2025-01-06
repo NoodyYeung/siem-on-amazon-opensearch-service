@@ -1,0 +1,189 @@
+
+PUT _component_template/component_template_log-aws-pa-firewall-authentication
+{
+  "template": {
+    "settings": {
+      "index.refresh_interval" : "2s",
+      "index.mapping.ignore_malformed": true,
+      "index.max_docvalue_fields_search": 200,
+      "index.number_of_shards": 3
+    },
+    "mappings": {
+      "properties": {
+        "receive_time": {
+          "type": "keyword"
+        },
+        "serial_number": {
+          "type": "keyword"
+        },
+        "type": {
+          "type": "keyword"
+        },
+        "threat_content_type": {
+          "type": "keyword"
+        },
+        "future_use_1": {
+          "type": "keyword"
+        },
+        "generated_time": {
+          "type": "date",
+          "format": "yyyy/MM/dd HH:mm:ss"
+        },
+        "virtual_system": {
+          "type": "keyword"
+        },
+        "source_ip": {
+          "type": "ip"
+        },
+        "user": {
+          "type": "keyword"
+        },
+        "normalize_user": {
+          "type": "keyword"
+        },
+        "object": {
+          "type": "keyword"
+        },
+        "authentication_policy": {
+          "type": "keyword"
+        },
+        "repeat_count": {
+          "type": "integer"
+        },
+        "authentication_id": {
+          "type": "keyword"
+        },
+        "vendor": {
+          "type": "keyword"
+        },
+        "log_action": {
+          "type": "keyword"
+        },
+        "server_profile": {
+          "type": "keyword"
+        },
+        "description": {
+          "type": "keyword"
+        },
+        "client_type": {
+          "type": "keyword"
+        },
+        "event_type": {
+          "type": "keyword"
+        },
+        "factor_number": {
+          "type": "integer"
+        },
+        "sequence_number": {
+          "type": "keyword"
+        },
+        "action_flags": {
+          "type": "keyword"
+        },
+        "data_grouping": {
+          "properties": {
+            "hier_level_1": {
+              "type": "keyword"
+            },
+            "hier_level_2": {
+              "type": "keyword"
+            },
+            "hier_level_3": {
+              "type": "keyword"
+            },
+            "hier_level_4": {
+              "type": "keyword"
+            }
+          }
+        },
+        "virtual_system_name": {
+          "type": "keyword"
+        },
+        "device": {
+          "properties": {
+            "name": {
+              "type": "keyword"
+            }
+          }
+        },
+        "virtual_system_id": {
+          "type": "keyword"
+        },
+        "authentication_protocol": {
+          "type": "keyword"
+        },
+        "uuid_for_rule": {
+          "type": "keyword"
+        },
+        "technology": {
+          "properties": {
+            "high_res_timestamp": {
+              "type": "date",
+              "format": "strict_date_optional_time||epoch_millis"
+            }
+          }
+        },
+        "source": {
+          "properties": {
+            "device": {
+              "properties": {
+                "category": {
+                  "type": "keyword"
+                },
+                "profile": {
+                  "type": "keyword"
+                },
+                "model": {
+                  "type": "keyword"
+                },
+                "vendor": {
+                  "type": "keyword"
+                },
+                "os": {
+                  "properties": {
+                    "family": {
+                      "type": "keyword"
+                    },
+                    "version": {
+                      "type": "keyword"
+                    }
+                  }
+                },
+                "hostname": {
+                  "type": "keyword"
+                },
+                "mac_address": {
+                  "type": "keyword"
+                }
+              }
+            }
+          }
+        },
+        "region": {
+          "type": "keyword"
+        },
+        "future_use_2": {
+          "type": "keyword"
+        },
+        "user_agent": {
+          "type": "keyword"
+        },
+        "session_id": {
+          "type": "keyword"
+        }
+      }
+    }
+  }
+}
+
+PUT _index_template/log-aws-pa-firewall-authentication
+{
+  "index_patterns": ["log-aws-pa-firewall-authentication-*"],
+  "priority": 2,
+  "composed_of": [
+
+    "component_template_log-aws-pa-firewall-authentication"
+  ],
+  "_meta": {"description": "Provided by AWS. Do not edit"},
+  "version": 2
+}

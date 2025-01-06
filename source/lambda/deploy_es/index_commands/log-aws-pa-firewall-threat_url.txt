@@ -1,4 +1,5 @@
-PUT _component_template/component_template_log-aws-pa-firewall-traffic
+
+PUT _component_template/component_template_log-aws-pa-firewall-threat_url
 {
   "template": {
     "settings": {
@@ -8,69 +9,127 @@ PUT _component_template/component_template_log-aws-pa-firewall-traffic
       "index.number_of_shards": 3
     },
     "mappings": {
-      "dynamic_templates": [
-        {
-          "attributes_map": {
-            "path_match": "attributes.*",
-            "mapping": {
-              "type": "keyword"
-            }
-          }
-        },
-        {
-          "events_attributes_map": {
-            "path_match": "events.attributes.*",
-            "mapping": {
-              "type": "keyword"
-            }
-          }
-        },
-        {
-          "links_attributes_map": {
-            "path_match": "links.attributes.*",
-            "mapping": {
-              "type": "keyword"
-            }
-          }
-        },
-        {
-          "instrumentation_scope_attributes_map": {
-            "path_match": "instrumentationScope.attributes.*",
-            "mapping": {
-              "type": "keyword"
-            }
-          }
-        },
-        {
-          "resources_map": {
-            "path_match": "resource.*",
-            "mapping": {
-              "type": "keyword"
-            }
-          }
-        }
-      ],
       "properties": {
         "receive_time": {
           "type": "keyword"
         },
+        "serial_number": {
+          "type": "keyword"
+        },
+        "type": {
+          "type": "keyword"
+        },
+        "threat_content_type": {
+          "type": "keyword"
+        },
+        "future_use_1": {
+          "type": "keyword"
+        },
+        "generated_time": {
+          "type": "date",
+          "format": "yyyy/MM/dd HH:mm:ss"
+        },
         "source": {
           "properties": {
-            "ip": {
-              "type": "ip"
+            "address": {
+              "type": "keyword"
             },
             "port": {
               "type": "integer"
+            },
+            "ip": {
+              "type": "ip"
+            },
+            "vm": {
+              "properties": {
+                "uuid": {
+                  "type": "keyword"
+                }
+              }
+            },
+            "device": {
+              "properties": {
+                "category": {
+                  "type": "keyword"
+                },
+                "profile": {
+                  "type": "keyword"
+                },
+                "model": {
+                  "type": "keyword"
+                },
+                "vendor": {
+                  "type": "keyword"
+                },
+                "os": {
+                  "properties": {
+                    "family": {
+                      "type": "keyword"
+                    },
+                    "version": {
+                      "type": "keyword"
+                    }
+                  }
+                },
+                "hostname": {
+                  "type": "keyword"
+                },
+                "mac_address": {
+                  "type": "keyword"
+                }
+              }
             }
           }
         },
         "destination": {
           "properties": {
-            "ip": {
-              "type": "ip"
+            "address": {
+              "type": "keyword"
             },
             "port": {
               "type": "integer"
+            },
+            "ip": {
+              "type": "ip"
+            },
+            "vm": {
+              "properties": {
+                "uuid": {
+                  "type": "keyword"
+                }
+              }
+            },
+            "device": {
+              "properties": {
+                "category": {
+                  "type": "keyword"
+                },
+                "profile": {
+                  "type": "keyword"
+                },
+                "model": {
+                  "type": "keyword"
+                },
+                "vendor": {
+                  "type": "keyword"
+                },
+                "os": {
+                  "properties": {
+                    "family": {
+                      "type": "keyword"
+                    },
+                    "version": {
+                      "type": "keyword"
+                    }
+                  }
+                },
+                "hostname": {
+                  "type": "keyword"
+                },
+                "mac_address": {
+                  "type": "keyword"
+                }
+              }
             }
           }
         },
@@ -360,25 +419,6 @@ PUT _component_template/component_template_log-aws-pa-firewall-traffic
             "sequence_number": {
               "type": "keyword"
             },
-            "action_source": {
-              "type": "keyword"
-            }
-          }
-        },
-        "identifiers": {
-          "properties": {
-            "serial": {
-              "type": "keyword"
-            },
-            "hostid": {
-              "type": "keyword"
-            },
-            "container_id": {
-              "type": "keyword"
-            },
-            "pod_namespace": {
-              "type": "keyword"
-            },
             "pod_name": {
               "type": "keyword"
             },
@@ -493,17 +533,15 @@ PUT _component_template/component_template_log-aws-pa-firewall-traffic
   }
 }
 
-
-PUT _index_template/log-aws-pa-firewall-traffic 
+PUT _index_template/log-aws-pa-firewall-threat_url
 {
-  "index_patterns": ["log-aws-pa-firewall-traffic-*"],
+  "index_patterns": ["log-aws-pa-firewall-threat_url-*"],
   "priority": 2,
   "composed_of": [
     "component_template_log",
     "component_template_log-aws",
-    "component_template_log-aws-pa-firewall-traffic"],
+    "component_template_log-aws-pa-firewall-threat_url"
+  ],
   "_meta": {"description": "Provided by AWS. Do not edit"},
   "version": 2
- }
-
-# Last step: Create index pattern in https://vpc-hkg-hkma-sys-log-nonprd-os-y4wj26xeod3fu7ykvyqa7uga54.ap-east-1.es.amazonaws.com/_dashboards/app/management/opensearch-dashboards/indexPatterns/
+}

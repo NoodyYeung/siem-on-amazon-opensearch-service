@@ -1,0 +1,123 @@
+
+PUT _component_template/component_template_log-aws-pa-firewall-config
+{
+  "template": {
+    "settings": {
+      "index.refresh_interval" : "2s",
+      "index.mapping.ignore_malformed": true,
+      "index.max_docvalue_fields_search": 200,
+      "index.number_of_shards": 3
+    },
+    "mappings": {
+      "properties": {
+        "receive_time": {
+          "type": "keyword"
+        },
+        "serial_number": {
+          "type": "keyword"
+        },
+        "type": {
+          "type": "keyword"
+        },
+        "subtype": {
+          "type": "keyword"
+        },
+        "future_use_1": {
+          "type": "keyword"
+        },
+        "generated_time": {
+          "type": "date",
+          "format": "yyyy/MM/dd HH:mm:ss"
+        },
+        "host": {
+          "type": "keyword"
+        },
+        "virtual_system": {
+          "type": "keyword"
+        },
+        "command": {
+          "type": "keyword"
+        },
+        "admin": {
+          "type": "keyword"
+        },
+        "client": {
+          "type": "keyword"
+        },
+        "result": {
+          "type": "keyword"
+        },
+        "configuration_path": {
+          "type": "keyword"
+        },
+        "before_change_detail": {
+          "type": "keyword"
+        },
+        "after_change_detail": {
+          "type": "keyword"
+        },
+        "sequence_number": {
+          "type": "keyword"
+        },
+        "action_flags": {
+          "type": "keyword"
+        },
+        "data_grouping": {
+          "properties": {
+            "hier_level_1": {
+              "type": "keyword"
+            },
+            "hier_level_2": {
+              "type": "keyword"
+            },
+            "hier_level_3": {
+              "type": "keyword"
+            },
+            "hier_level_4": {
+              "type": "keyword"
+            }
+          }
+        },
+        "virtual_system_name": {
+          "type": "keyword"
+        },
+        "device": {
+          "properties": {
+            "name": {
+              "type": "keyword"
+            }
+          }
+        },
+        "device_group": {
+          "type": "keyword"
+        },
+        "audit_comment": {
+          "type": "keyword"
+        },
+        "future_use_2": {
+          "type": "keyword"
+        },
+        "technology": {
+          "properties": {
+            "high_res_timestamp": {
+              "type": "date",
+              "format": "strict_date_optional_time||epoch_millis"
+            }
+          }
+        }
+      }
+    }
+  }
+}
+
+PUT _index_template/log-aws-pa-firewall-config
+{
+  "index_patterns": ["log-aws-pa-firewall-config-*"],
+  "priority": 2,
+  "composed_of": [
+
+    "component_template_log-aws-pa-firewall-config"
+  ],
+  "_meta": {"description": "Provided by AWS. Do not edit"},
+  "version": 2
+}
