@@ -256,7 +256,7 @@ class LogS3:
         if self.start_number <= ignore_header_line_number:
             start = ignore_header_line_number + 1
             if self.max_log_count >= self.log_count:
-                end = self.log_count
+                end = self.log_count + ignore_header_line_number
             else:
                 end = self.max_log_count
         else:

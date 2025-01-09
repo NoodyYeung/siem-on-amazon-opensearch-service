@@ -612,6 +612,8 @@ def process_record(record):
 
     # 抽出したログからESにPUTするデータを作成する
     es_entries = get_es_entries(logfile)
+
+    
     # 作成したデータをESにPUTしてメトリクスを収集する
     (collected_metrics, error_reason_list, retry_needed) = (
         bulkloads_into_opensearch(es_entries, collected_metrics))
