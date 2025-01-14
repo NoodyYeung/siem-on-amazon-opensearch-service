@@ -29,6 +29,7 @@ LOG_PATHS_PREFIXS = {
     "BUCKET_AUTHENTICATION": "PA_AUTHENTICATION"
 }
 
+S3_ENDPOINT_DNS = os.environ.get('S3_ENDPOINT_DNS')
 
 def lambda_handler(event, context):
     # Log the received event
@@ -46,7 +47,7 @@ def lambda_handler(event, context):
         
         try:
             # Get the log file from S3
-            s3_client = boto3.client('s3')
+            s3_client = boto3.client('s3', endpoint_url = S3_ENDPOINT_DNS)
             response = s3_client.get_object(Bucket=bucket, Key=key)
             content = response['Body'].read().decode('utf-8')
             decoder = json.JSONDecoder()
