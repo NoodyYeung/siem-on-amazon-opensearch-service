@@ -1,12 +1,10 @@
-# Lambda Function Overview
+### Lambda function for Parsing and Transforming Palo Alto Firewall Log Data on S3
 
-This section provides an overview of the Lambda function `hkg-hkma-sys-log-nonprd-vpc01-pa-firewall-rawlog-transformer` within the "hkg-hkma-sys-log-nonprd" landing zone.
+The following section will use the `hkg-hkma-sys-log-nonprd-syslog` landing zone as the example.
 
-## Functionality
+The Lambda function, `pa-firewall-rawlog-transformer`, is designed to process log files uploaded to the S3 bucket `hkg-hkma-sys-log-nonprd-syslog-bucket-558454069898`. Upon detecting a new file upload, the function is triggered to parse and transform the log data. The primary objective is to split multiple log types within each row record into individual log entries, categorized by specific log types. The categories include SYSTEM, THREAT_URL, THREAT_OTHERS, TRAFFIC, DECRYPTION, CONFIG, and AUTHENTICATION.
 
-The Lambda function is designed to process log files uploaded to the S3 bucket `hkg-hkma-sys-log-nonprd-syslog-bucket-558454069898`. Upon detecting a new file upload, the function is triggered to parse and transform the log data. The primary objective is to split multiple log types within each row record into individual log entries, categorized by specific log types. The categories include SYSTEM, THREAT_URL, THREAT_OTHERSE, TRAFFIC, DECRYPTION, CONFIG, and AUTHENTICATION.
-
-## Workflow
+#### Workflow of the Lambda Function:
 
 1. **Event Trigger:**
    - The Lambda function is invoked by an S3 event whenever a new file is uploaded to the `hkg-hkma-sys-log-nonprd-syslog-bucket-558454069898` bucket.
@@ -26,7 +24,7 @@ The Lambda function is designed to process log files uploaded to the S3 bucket `
 5. **Data Storage:**
    - The processed and categorized log entries are stored in the destination S3 bucket `hkg-hkma-sys-log-nonprd-pa-firewall-bucket-558454069898`.
 
-## Log Categories
+#### Log Categories
 
 - **SYSTEM:** Logs related to system events.
 - **THREAT_URL:** Logs related to URL-based threats.
