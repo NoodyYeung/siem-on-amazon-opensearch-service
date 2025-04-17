@@ -7,7 +7,7 @@
     "region": "ap-east-1",
     "logger_name": "aws.sqs",
     "level": "p3",
-    "message": "Alarm triggered: {{ctx.monitor.name}} \nAccount ID: 558454069898\nReason: Detected on VPC/ELB logging disabled.",
+    "message": "Alarm triggered: {{ctx.monitor.name}} \nAccount ID: {{ctx.results.0.hits.hits.0._source.recipientAccountId}}\nReason: Detected on VPC/ELB logging disabled.",
     "serviceName": "AWSOpenSearch",
       "alarmName": "[HKMA][High][LOG-NONPRD-Opensearch][{{ctx.monitor.name}}]",
     "detail": "reason: Detected on VPC/ELB logging disabled\nquery_results: {{ctx.results}}\nlink_to_dashboard: https://opensearch.uat.awscloud.hkma.gov.hk/_dashboards/app/dashboards#/view/9bceaa10-aa1d-11ee-a6ee-c3de5a9d4694?_g=(filters:!(),refreshInterval:(pause:!t,value:0),time:(from:now-3M,to:now))&_a=(description:'',filters:!(),fullScreenMode:!f,options:(hidePanelTitles:!f,useMargins:!t),query:(language:kuery,query:''),timeRestore:!f,title:'All%20in%20One%20-%20Security%20Dashboard',viewMode:view)"

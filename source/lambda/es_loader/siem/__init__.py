@@ -777,6 +777,8 @@ class LogParser:
 
     def transform_to_ecs(self):
         cloud = self.__logdata_dict.get('cloud', {})
+        if type(cloud) != dict:
+            cloud = {}
         csp = cloud.get('provider')
         account1 = cloud.get('account', {}).get('id')
         region = cloud.get('region')

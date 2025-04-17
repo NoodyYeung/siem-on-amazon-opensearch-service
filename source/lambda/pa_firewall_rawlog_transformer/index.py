@@ -22,14 +22,13 @@ LOG_PATHS_PREFIXS = {
     "BUCKET_SYSTEM": "PA_SYSTEM",
     "BUCKET_THREAT_URL": "PA_THREAT_URL",
     "BUCKET_THREAT_DATA": "PA_THREAT_DATA",
-    "BUCKET_THREAT_OTHERS": "PA_THREAT_OTHERST",
+    "BUCKET_THREAT_OTHERS": "PA_THREAT_OTHERS",
     "BUCKET_TRAFFIC": "PA_TRAFFIC",
     "BUCKET_DECRYPTION": "PA_DECRYPTION",
     "BUCKET_CONFIG": "PA_CONFIG",
     "BUCKET_AUTHENTICATION": "PA_AUTHENTICATION"
 }
 
-S3_ENDPOINT_DNS = os.environ.get('S3_ENDPOINT_DNS')
 
 def lambda_handler(event, context):
     # Log the received event
@@ -47,7 +46,7 @@ def lambda_handler(event, context):
         
         try:
             # Get the log file from S3
-            s3_client = boto3.client('s3', endpoint_url = S3_ENDPOINT_DNS)
+            s3_client = boto3.client('s3')
             response = s3_client.get_object(Bucket=bucket, Key=key)
             content = response['Body'].read().decode('utf-8')
             decoder = json.JSONDecoder()
@@ -115,45 +114,46 @@ def process_log_data(log_data):
             try:
                 log_json = json.loads(entry)
                 for log_event in log_json.get('logEvents', []):
-                    message = log_event.get('message', '')
-                    if 'SYSTEM' in message:
-                        df = process_system_log(message)
-                        print("[INFO] Processed system log DataFrame: ")
-                        groups["BUCKET_SYSTEM"].append(df)
-                        
-                    elif 'TRAFFIC' in message:
-                        df = process_traffic_log(message)
-                        print("[INFO] Processed traffic log DataFrame: ")
-                        groups["BUCKET_TRAFFIC"].append(df)
-                    elif 'THREAT' in message:
-                        # Check if subtype is 'url'
-                        if ',url,' in message.lower():
-                            df = process_url_filtering_log(message)
-                            print("[INFO] Processed URL filtering log DataFrame: ")
-                            groups["BUCKET_THREAT_URL"].append(df)
-                        elif ',data,' in message.lower() or ',dlp,' in message.lower() or ',file,' in message.lower():
-                            # Handle data filtering logs
-                            df = process_data_filtering_log(message)
-                            print("[INFO] Processed data filtering log DataFrame: ")
-                            groups["BUCKET_THREAT_DATA"].append(df)
+                    messages = log_event.get('message', '').split("\n")
+                    for message in messages:
+                        if 'SYSTEM' in message:
+                            df = process_system_log(message)
+                            print("[INFO] Processed system log DataFrame: ")
+                            groups["BUCKET_SYSTEM"].append(df)
+                            
+                        elif 'TRAFFIC' in message:
+                            df = process_traffic_log(message)
+                            print("[INFO] Processed traffic log DataFrame: ")
+                            groups["BUCKET_TRAFFIC"].append(df)
+                        elif 'THREAT' in message:
+                            # Check if subtype is 'url'
+                            if ',url,' in message.lower():
+                                df = process_url_filtering_log(message)
+                                print("[INFO] Processed URL filtering log DataFrame: ")
+                                groups["BUCKET_THREAT_URL"].append(df)
+                            elif ',data,' in message.lower() or ',dlp,' in message.lower() or ',file,' in message.lower():
+                                # Handle data filtering logs
+                                df = process_data_filtering_log(message)
+                                print("[INFO] Processed data filtering log DataFrame: ")
+                                groups["BUCKET_THREAT_DATA"].append(df)
+                            else:
+                                df = process_threat_log(message)
+                                print("[INFO] Processed threat log DataFrame: ")
+                                groups["BUCKET_THREAT_OTHERS"].append(df)
+                        elif 'DECRYPTION' in message:
+                            df = process_decryption_log(message)
+                            print("[INFO] Processed decryption log DataFrame: ")
+                            groups["BUCKET_DECRYPTION"].append(df)
+                        elif "CONFIG" in message:
+                            df = process_config_log(message)
+                            print("[INFO] Processed config log DataFrame: ")
+                            groups["BUCKET_CONFIG"].append(df)
+                        elif 'AUTHENTICATION' in message:
+                            df = process_authentication_log(message)
+                            print("[INFO] Processed authentication log DataFrame: ")
+                            groups["BUCKET_AUTHENTICATION"].append(df)
                         else:
-                            df = process_threat_log(message)
-                            print("[INFO] Processed threat log DataFrame: ")
-                            groups["BUCKET_THREAT_OTHERS"].append(df)
-                    elif 'DECRYPTION' in message:
-                        df = process_decryption_log(message)
-                        print("[INFO] Processed decryption log DataFrame: ")
-                        groups["BUCKET_DECRYPTION"].append(df)
-                    elif "CONFIG" in message:
-                        df = process_config_log(message)
-                        print("[INFO] Processed config log DataFrame: ")
-                        groups["BUCKET_CONFIG"].append(df)
-                    elif 'AUTHENTICATION' in message:
-                        df = process_authentication_log(message)
-                        print("[INFO] Processed authentication log DataFrame: ")
-                        groups["BUCKET_AUTHENTICATION"].append(df)
-                    else:
-                        logging.warning("Unknown log type: %s", message)
+                            logging.warning("Unknown log type: %s", message)
             except json.JSONDecodeError as e:
                 print("[ERROR] Error decoding JSON: %s" % e)
 
@@ -212,7 +212,8 @@ def process_system_log(message):
         # Skip empty lines
         if not fields or all(field.strip() == "" for field in fields):
             continue
-        
+        # if len(fields) != len(columns):
+        #     raise Exception("Number of fields does not match the expected count. Given %d, expected %d" % (len(fields), len(columns)))
         # Build the system_log dictionary by mapping ECS fields to CSV fields
         system_log = {
             "receive_time": fields[0].strip(),
@@ -376,8 +377,11 @@ def process_traffic_log(message):
     traffic_logs = []
     
     for fields in csv_reader:
-        # Ensure that the number of fields matches the expected count
-        
+        # Skip empty lines
+        if not fields or all(field.strip() == "" for field in fields):
+            continue
+        # if len(fields) != len(columns):
+        #     raise Exception("Number of fields does not match the expected count. Given %d, expected %d" % (len(fields), len(columns)))
         traffic_log = {
             "receive_time": fields[0].strip(),
             "serial_number": fields[1].strip(),
@@ -642,7 +646,10 @@ def process_threat_log(message):
     threat_logs = []
     
     for fields in csv_reader:
-        
+        if not fields:
+            continue
+        # if len(fields) != len(columns):
+        #     raise Exception("Number of fields does not match the expected count. Given %d, expected %d" % (len(fields), len(columns)))
         # Build the threat_log dictionary by mapping ECS fields to CSV fields
         threat_log = {
             "receive_time": fields[0].strip(),
@@ -914,9 +921,13 @@ def process_url_filtering_log(message):
     # Initialize a list to hold all URL filtering logs
     url_filtering_logs = []
     
-    for fields in csv_reader:        
+    for fields in csv_reader:
+        if not fields:
+            continue
+        # if len(fields) != len(columns):
+        #     raise Exception("Number of fields does not match the expected count. Given %d, expected %d" % (len(fields), len(columns)))
         # Build the url_filtering_log dictionary by mapping ECS fields to CSV fields
-        url_filtering_log = {columns[i]: fields[i].strip() for i in range(len(fields))}
+        url_filtering_log = {columns[i]: fields[i].strip() for i in range(len(columns))}
         url_filtering_logs.append(url_filtering_log)
     
     # Define the DataFrame columns to ensure correct ordering
@@ -1068,12 +1079,12 @@ def process_data_filtering_log(message):
     data_filtering_logs = []
     
     for fields in csv_reader:
-        # Skip empty lines
         if not fields or all(field.strip() == "" for field in fields):
             continue
-        
+        # if len(fields) != len(columns):
+        #     raise Exception("Number of fields does not match the expected count. Given %d, expected %d" % (len(fields), len(columns)))
         # Build the data_filtering_log dictionary by mapping ECS fields to CSV fields
-        data_filtering_log = {columns[i]: fields[i].strip() for i in range(len(fields))}
+        data_filtering_log = {columns[i]: fields[i].strip() for i in range(len(columns))}
         data_filtering_logs.append(data_filtering_log)
     
     # Define the DataFrame columns to ensure correct ordering
@@ -1101,7 +1112,7 @@ def process_decryption_log(message):
         "type",
         "threat_content_type",
         "config_version",
-        "generate_time",
+        "generated_time",
         "source_address",
         "destination_address",
         "nat_source_ip",
@@ -1210,12 +1221,12 @@ def process_decryption_log(message):
     decryption_logs = []
     
     for fields in csv_reader:
-        # Skip empty lines
         if not fields or all(field.strip() == "" for field in fields):
             continue
-        
+        # if len(fields) != len(columns):
+        #     raise Exception("Number of fields does not match the expected count. Given %d, expected %d" % (len(fields), len(columns)))
         # Build the decryption_log dictionary by mapping ECS fields to CSV fields
-        decryption_log = {columns[i]: fields[i].strip() for i in range(len(fields))}
+        decryption_log = {columns[i]: fields[i].strip() for i in range(len(columns))}
         decryption_logs.append(decryption_log)
     
     # Define the DataFrame columns to ensure correct ordering
@@ -1248,10 +1259,10 @@ def process_config_log(message):
         "command",
         "admin",
         "client",
+        "client",
         "result",
         "configuration_path",
         "before_change_detail",
-        "after_change_detail",
         "sequence_number",
         "action_flags",
         "device_group_hierarchy_level_1",
@@ -1273,13 +1284,12 @@ def process_config_log(message):
     config_logs = []
     
     for fields in csv_reader:
-        # Skip empty lines
         if not fields or all(field.strip() == "" for field in fields):
             continue
-
-        
+        # if len(fields) != len(columns):
+        #     raise Exception("Number of fields does not match the expected count. Given %d, expected %d" % (len(fields), len(columns)))
         # Build the config_log dictionary by mapping ECS fields to CSV fields
-        config_log = {columns[i]: fields[i].strip() for i in range(len(fields))}
+        config_log = {columns[i]: fields[i].strip() for i in range(len(columns))}
         config_logs.append(config_log)
     
     # Create a DataFrame from the list of configuration logs
@@ -1356,12 +1366,12 @@ def process_authentication_log(message):
     authentication_logs = []
     
     for fields in csv_reader:
-        # Skip empty lines
         if not fields or all(field.strip() == "" for field in fields):
             continue
-        
+        # if len(fields) != len(columns):
+        #     raise Exception("Number of fields does not match the expected count. Given %d, expected %d" % (len(fields), len(columns)))
         # Build the authentication_log dictionary by mapping ECS fields to CSV fields
-        authentication_log = {columns[i]: fields[i].strip() for i in range(len(fields))}
+        authentication_log = {columns[i]: fields[i].strip() for i in range(len(columns))}
         authentication_logs.append(authentication_log)
     
     # Create a DataFrame from the list of authentication logs
