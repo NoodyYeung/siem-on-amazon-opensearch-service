@@ -1,0 +1,13 @@
+{
+    "@timestamp": "{{ctx.periodStart}}",
+    "event_id": "{{ctx.results.0.hits.hits.0._source.eventID}}",         
+    "event_source": "aws.opensearch",
+    "event_type": "OpenSearch Alert",
+    "aws_account_id": "{{ctx.results.0.hits.hits.0._source.recipientAccountId}}", 
+    "region": "ap-east-1",
+    "logger_name": "aws.sqs",
+    "level": "p3",
+    "message": "Alarm triggered: {{ctx.monitor.name}} \nAccount ID: {{ctx.results.0.hits.hits.0._source.recipientAccountId}}\nReason: Detected attaching Admin policy to role",
+    "serviceName": "AWSOpenSearch",
+      "alarmName": "[HKMA][High][LOG-NONPRD-Opensearch][{{ctx.monitor.name}}]"    
+  }
